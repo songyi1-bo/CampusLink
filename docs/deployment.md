@@ -85,7 +85,7 @@ backend/.venv/Scripts/python.exe database/migrate_book.py
 | 模块 | 新增依赖与环境变量 | 初始化 SQL / 数据 | 文件目录及维护事项 |
 | --- | --- | --- | --- |
 | 校园拼车 | @amap/amap-jsapi-loader；可选地图变量见上文 | migrations/001_add_ride.sql | 地点、行程、成员和联系方式保存在 MySQL，无新增上传目录 |
-| 校园悬赏 | 待确认；无新增则写“无” | 待补充 | 待补充 |
+| 校园悬赏 | 无 | quest_task；migrate_quest.py 或 003_add_quest.sql | /quest；无新增外部服务 |
 | 二手书 | 无 | migrations/002_add_book.sql | 书籍、收藏和联系方式保存在 MySQL；书籍图片复用公共 uploads 目录，无新增上传目录 |
 
 ## 最终部署环境
@@ -93,3 +93,10 @@ backend/.venv/Scripts/python.exe database/migrate_book.py
 待确定最终运行环境、实际端口与访问地址、完整初始化顺序、前端静态资源及接口转发、启动停止方法、日志位置，以及更新和回退步骤。按实际部署环境填写，不默认必须上云。
 
 业务完成后汇总全部数据库表与文件目录的备份恢复方法，在目标环境实际验证后记录日期和结果；当前本地启动说明不能替代最终部署验收。
+
+
+## 校园悬赏安装与升级
+
+全新安装执行 database/setup.py 时，init.sql 会同时创建 quest_task。已有数据库在备份后，从根目录运行 `backend/.venv/Scripts/python.exe database/migrate_quest.py`，该脚本仅创建缺失表，可重复执行，不删除数据。若应用账号无 CREATE 权限，使用具备建表权限的数据库账号执行 migrations/003_add_quest.sql，勿给日常运行账号额外开放权限。
+
+重启后端并重新构建或启动前端，访问 /quest。没有新增环境变量和依赖。金额仅记录线下约定，时间按 UTC 保存并在页面显示为浏览器本地时间。列表报 500 时检查迁移是否执行、数据库连接和日志；409 表示状态或截止时间变化，刷新详情再操作；403 表示当前用户无权操作。备份时将 quest_task 与 user 等业务表共同备份，避免丢失外键对应关系。

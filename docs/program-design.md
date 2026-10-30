@@ -2,7 +2,7 @@
 
 ## 结构与职责
 
-本文说明 CampusLink 全系统程序设计，包括总体架构、公共能力、三个业务模块和集成方式。系统采用前后端分离的单体分模块结构，详细目录见 [框架设计](framework.md)。当前公共设计已填写，业务实现由各负责人补充。
+本文说明 CampusLink 全系统程序设计，包括总体架构、公共能力、三个业务模块和集成方式。系统采用前后端分离的单体分模块结构，详细目录见 [框架设计](framework.md)。公共设计和业务模块设计分别说明。
 
 - 前端：页面负责交互；公共组件负责布局；`api/request.ts` 负责请求、Token、超时及错误提示；Pinia 管理 `token`、`currentUser`，派生 `isAuthenticated`。
 - 后端：Router 定义路径，Schema 校验和描述数据，Service 处理用户业务，Model 映射数据库。`common` 提供配置、数据库、密码与 JWT、响应和异常处理。
@@ -47,7 +47,7 @@ Content-Type: application/json
 
 上传限制为 5 MiB 的 JPEG、PNG、WebP；实际图片验证通过后随机命名存储。上传仅返回 URL，不自动绑定到用户；前端再发送 `{"avatar":"/uploads/返回的文件名"}` 更新资料。
 
-详细字段与可执行请求参见运行后的 `/docs`。分页公共类型为 `{items,total,page,page_size}`，目前没有业务分页接口。
+详细字段与可执行请求参见运行后的 `/docs`。分页公共类型为 `{items,total,page,page_size}`，业务列表采用该分页结构。
 
 ## 公共关键流程
 
@@ -59,7 +59,7 @@ Content-Type: application/json
 
 ## 模块扩展约定
 
-前端公开入口为 `/ride、/quest、/book`，个人入口追加 `/mine`。后端空 Router 已分别挂载到 `/api/rides、/api/quests、/api/books`，尚无业务操作接口。
+前端公开入口为 `/ride、/quest、/book`，个人入口追加 `/mine`。后端 Router 分别挂载到 `/api/rides、/api/quests、/api/books`，提供各模块业务接口。
 
 模块使用公共 `CurrentUser、DatabaseSession、ApiResponse`，前端使用 `request`（路径不重复写 `/api`，结果已经解包）。业务权限需由模块验证记录归属，不能仅相信前端传来的用户 ID。新增路由和公共层修改先协调，保持接口简单、一种操作一种明确含义，不引入无需求的通用接口。
 
@@ -73,7 +73,9 @@ Content-Type: application/json
 
 ### 校园悬赏
 
-接口前缀为 `/api/quests`。页面、处理流程和接口明细待补充。
+接口前缀为 `/api/quests`。提供列表、发布、我的悬赏、详情、编辑、relation、contacts、accept、withdraw、submit、confirm、cancel。前端 QuestList 复用大厅和个人页的列表、分页与错误重试，Edit 负责发布和编辑回显，Detail 按服务器返回权限显示操作并通过确认弹窗处理撤回、取消和确认完成。
+
+后端 models 定义 quest_task，schemas 校验严格字段、金额及含时区截止时间，service 统一以 `SELECT FOR UPDATE` 锁定任务后检查角色和状态，提交或回滚事务。公开响应不包含联系方式或完成说明，分别通过受保护接口返回。完整接口表、示例及错误码见 [悬赏模块设计说明](quest-plan.md)。
 
 ### 二手书
 

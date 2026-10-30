@@ -108,3 +108,32 @@ CREATE TABLE IF NOT EXISTS book_favorite (
 	FOREIGN KEY(user_id) REFERENCES user (id) ON DELETE RESTRICT,
     INDEX ix_book_favorite_user (user_id, created_at, id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE IF NOT EXISTS quest_task (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    owner_id BIGINT NOT NULL,
+    assignee_id BIGINT NULL,
+    title VARCHAR(80) NOT NULL,
+    description VARCHAR(1500) NOT NULL,
+    category VARCHAR(16) NOT NULL,
+    location VARCHAR(160) NOT NULL,
+    reward NUMERIC(8,2) NOT NULL,
+    deadline DATETIME(6) NOT NULL,
+    contact_type VARCHAR(16) NOT NULL,
+    contact_value VARCHAR(64) NOT NULL,
+    assignee_contact_type VARCHAR(16) NULL,
+    assignee_contact_value VARCHAR(64) NULL,
+    completion_note VARCHAR(500) NOT NULL DEFAULT '',
+    status VARCHAR(16) NOT NULL DEFAULT 'open',
+    created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    CONSTRAINT ck_quest_category CHECK (category IN ('delivery','study','repair','other')),
+    CONSTRAINT ck_quest_status CHECK (status IN ('open','accepted','submitted','completed','cancelled')),
+    CONSTRAINT ck_quest_reward CHECK (reward BETWEEN 0 AND 9999.99),
+    CONSTRAINT ck_quest_assignee CHECK (assignee_id IS NULL OR assignee_id <> owner_id),
+    FOREIGN KEY (owner_id) REFERENCES user(id) ON DELETE RESTRICT,
+    FOREIGN KEY (assignee_id) REFERENCES user(id) ON DELETE RESTRICT,
+    INDEX ix_quest_browse (status, category, deadline, id),
+    INDEX ix_quest_owner (owner_id, created_at, id),
+    INDEX ix_quest_assignee (assignee_id, created_at, id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

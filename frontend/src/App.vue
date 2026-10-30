@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NConfigProvider, NGlobalStyle, NMessageProvider, zhCN, dateZhCN } from 'naive-ui'
+import { NConfigProvider, NDialogProvider, NGlobalStyle, NMessageProvider, zhCN, dateZhCN } from 'naive-ui'
 import RequestFeedback from './components/common/RequestFeedback.vue'
 import AppHeader from './components/layout/AppHeader.vue'
 import { theme } from './theme'
@@ -9,7 +9,7 @@ import { theme } from './theme'
   <NConfigProvider :locale="zhCN" :date-locale="dateZhCN" :theme-overrides="theme">
     <NGlobalStyle />
     <NMessageProvider>
-      <RequestFeedback><AppHeader /><RouterView :key="$route.path" /></RequestFeedback>
+      <NDialogProvider><RequestFeedback><AppHeader /><RouterView :key="$route.path" /></RequestFeedback></NDialogProvider>
     </NMessageProvider>
   </NConfigProvider>
 </template>

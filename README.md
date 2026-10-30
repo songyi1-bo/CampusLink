@@ -1,6 +1,6 @@
 # CampusLink
 
-校园生活 Web 应用，提供注册登录、个人资料、图片上传和统一页面布局。校园拼车支持发布、筛选、报名、退出和行程管理，并已接入可选的高德地图代码；校园二手书支持发布、筛选、收藏、联系卖家和状态管理；校园悬赏保留入口和占位页。
+校园生活 Web 应用，提供注册登录、个人资料、图片上传和统一页面布局。校园拼车支持发布、筛选、报名、退出和行程管理，并已接入可选的高德地图代码；校园二手书支持发布、筛选、收藏、联系卖家和状态管理；校园悬赏支持发布、筛选、单人接单、撤回、提交完成和发布者确认。
 
 技术栈：Vue 3 + TypeScript + Naive UI + Tailwind CSS / FastAPI + SQLAlchemy / MySQL。
 
@@ -26,7 +26,7 @@ backend/.venv/Scripts/python.exe database/setup.py
 
 在终端输入 MySQL 管理账号密码，脚本自动执行建库建表 SQL、创建项目专用账号，并生成 `backend/.env` 和随机 JWT 密钥，无需复制或编辑文件。默认使用本机 3306 端口和 root 管理账号；其他配置可用 `--host`、`--port`、`--user` 指定。
 
-已有 `.env` 时只检查连接和用户表，不覆盖配置或数据。升级已有公共框架数据库时，运行 `backend/.venv/Scripts/python.exe database/migrate_ride.py` 新增拼车表、运行 `backend/.venv/Scripts/python.exe database/migrate_book.py` 新增二手书表，不会删除旧数据。全新初始化已包含拼车和二手书表。
+已有 `.env` 时只检查连接和用户表，不覆盖配置或数据。升级已有公共框架数据库时，运行 `backend/.venv/Scripts/python.exe database/migrate_ride.py` 新增拼车表、运行 `backend/.venv/Scripts/python.exe database/migrate_book.py` 新增二手书表，不会删除旧数据。升级悬赏表时运行 `backend/.venv/Scripts/python.exe database/migrate_quest.py`。全新初始化已包含三个业务模块的表。
 
 高德地图为可选配置：在 `frontend/.env` 填写 `VITE_AMAP_KEY`（Web 端 JS API Key），在 `backend/.env` 填写 `AMAP_SECURITY_CODE`（对应安全密钥），重启前后端。安全密钥不可放入 `VITE_` 变量。配置步骤及限制见 [部署说明](docs/deployment.md)。未配置地图仍可手动填写地点并使用全部拼车业务。
 

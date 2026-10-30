@@ -4,7 +4,7 @@
 
 使用 MySQL 8，数据库名默认 `campuslink`，字符集 `utf8mb4`，默认排序规则 `utf8mb4_0900_ai_ci`，存储引擎 InnoDB。连接信息从 `backend/.env` 读取。数据库初始化的唯一依据为 [init.sql](../database/init.sql)。
 
-本说明覆盖全系统数据库。当前已实现公共 `user` 表、拼车 `ride_trip`、`ride_member` 表及二手书 `book_listing`、`book_favorite` 表；悬赏仍预留设计章节。
+本说明覆盖全系统数据库。当前已实现公共 `user` 表、拼车 `ride_trip`、`ride_member` 表及二手书 `book_listing`、`book_favorite` 表；悬赏使用 `quest_task` 表。
 
 ## 公共用户表
 
@@ -42,7 +42,9 @@
 
 ### 校园悬赏
 
-待补充本模块的数据表、字段、主外键和索引。
+`quest_task` 保存标题、描述、分类、交付地点、赏金、UTC 截止时间、发布者和可空的当前接单者外键、双方联系方式、完成说明及状态。一个任务最多有一个当前接单者，撤回清除接单者外键与联系方式，不保留撤回历史。状态为 open、accepted、submitted、completed、cancelled；expired 依据 open 与截止时间动态计算，不写入状态列。
+
+主键为自增 BIGINT；两个用户外键均使用 RESTRICT。CHECK 限制分类、状态、赏金范围并禁止发布者接自己的任务。大厅索引为 `(status,category,deadline,id)`，个人索引分别为 `(owner_id,created_at,id)` 和 `(assignee_id,created_at,id)`。所有状态写入先锁定同一任务行，避免两个用户同时接取；鉴权查询后的状态读取采用当前读并刷新 ORM 对象。完整字段表见 [悬赏设计](quest-plan.md)，SQL 见 [003_add_quest.sql](../database/migrations/003_add_quest.sql)。
 
 ### 二手书
 
